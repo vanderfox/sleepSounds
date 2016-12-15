@@ -1,16 +1,37 @@
 {
   "intents": [
     {
-      "intent": "ResponseIntent",
+      "intent": "AMAZON.PauseIntent"
+    },
+    {
+      "intent": "AMAZON.ResumeIntent"
+    },
+    {
+      "intent": "PlaySoundIntent",
       "slots": [
         {
-          "name": "Answer",
-          "type": "AMAZON.LITERAL"
+          "name": "soundName",
+          "type": "soundNames"
+        },
+        {
+          "name": "playTime",
+          "type": "AMAZON.DURATION"
         }
       ]
     },
+
+    {
+      "intent": "PlayRandomSoundIntent"
+    },
     {
       "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
     }
+
   ]
 }

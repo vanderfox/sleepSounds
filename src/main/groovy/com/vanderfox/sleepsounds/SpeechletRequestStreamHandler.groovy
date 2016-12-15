@@ -24,7 +24,7 @@ public final class SpeechletRequestStreamHandler extends SpeechletRequestStreamH
          */
         final Properties properties = new Properties();
         try {
-            InputStream stream = SleepSoundsSpeechlet.class.getClassLoader()getResourceAsStream("springSocial.properties")
+            InputStream stream = SleepSoundsSpeechlet.class.getClassLoader()getResourceAsStream("sleepSounds.properties")
             properties.load(stream);
 
             def property = properties.getProperty("awsApplicationId")

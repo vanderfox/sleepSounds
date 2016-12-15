@@ -1,7 +1,14 @@
-ResponseIntent {test|Answer}
-ResponseIntent {last player|Answer}
-ResponseIntent {test test|Answer}
-ResponseIntent {test test test|Answer}
-ResponseIntent {test test test test|Answer}
-HelpIntent {help}
-
+PlaySoundIntent play {soundName}
+PlaySoundIntent play sound {soundName}
+PlaySoundIntent play sound name {soundName}
+PlaySoundIntent play sound called {soundName}
+PlaySoundIntent play {soundName} for {playTime}
+PlaySoundIntent play sound {soundName} for {playTime}
+PlaySoundIntent play sound name {soundName} for {playTime}
+PlaySoundIntent play sound called {soundName} for {playTime}
+PlayRandomSoundIntent play random sound
+PlayRandomSoundIntent play random
+PlayRandomSoundIntent play random sound for {playTime}
+AMAZON.HelpIntent help
+AMAZON.StopIntent stop
+AMAZON.CancelIntent cancel
