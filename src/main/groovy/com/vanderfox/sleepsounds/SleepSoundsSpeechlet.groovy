@@ -359,7 +359,7 @@ public class SleepSoundsSpeechlet implements Speechlet {
         if (item) {
             String speechText = "Starting playback of ${item.getString("soundName_nice")}"
             List playItems = new ArrayList<AudioDirectivePlay>(playTimes)
-            playTimes.each {
+            for(int i=0; i < 3; i++) {
                 Stream audioStream = new Stream()
                 audioStream.offsetInMilliseconds = 0
                 audioStream.url = item.getString("url")
