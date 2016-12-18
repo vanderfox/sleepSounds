@@ -363,24 +363,22 @@ public class SleepSoundsSpeechlet implements Speechlet {
                 Stream audioStream = new Stream()
                 audioStream.offsetInMilliseconds = 0
                 audioStream.url = item.getString("url")
-                audioStream.setToken((request.getRequestId() + audioStream.url).hashCode() as String)
+                audioStream.setToken((request.getRequestId() + audioStream.url).hashCode() + System.currentTimeMillis() as String)
                 log.debug("playing url:${audioStream.url}")
                 AudioItem audioItem = new AudioItem(audioStream)
+                AudioDirectivePlay audioPlayerPlay = new AudioDirectivePlay(audioItem)
+                audioPlayerPlay.playBehavior = "ENQUEUE"
 
+                playItems.add(audioPlayerPlay)
+            }
             int playedCount = item.getInt("playedCount")
             playedCount++
             item.withInt("playedCount", playedCount)
             table.putItem(item)
-
-
-                AudioDirectivePlay audioPlayerPlay = new AudioDirectivePlay(audioItem)
-
-                playItems.add(audioPlayerPlay)
-            }
             // write these to the dyanmo table to pause/resume will work (only way I've found)
 
             Table stateTable = dynamoDB.getTable("sleepsounds_playback_state")
-            Item tokenItem = new Item().withPrimaryKey("token",audioStream.getToken())
+            Item tokenItem = new Item().withPrimaryKey("token",playItems.get(0).audioItem.stream.token)
                     .withString("streamUrl",playItems.get(0).audioItem.stream.url)
                     .withString("soundsName",item.getString("soundName"))
                     .withNumber("offsetInMillis",0)
@@ -396,6 +394,7 @@ public class SleepSoundsSpeechlet implements Speechlet {
             SimpleCard card = new SimpleCard()
             card.setTitle(title)
             card.setContent(speechText) //TODO auto retrieve show notes here
+            log.debug("playing sound items size=${playItems.size} ${playItems.toString()}")
             SpeechletResponse.newTellResponse(speech, card, playItems)
         } else {
             String speechText = "I'm sorry I am unable to find a sound to play. Please say Alexa open Sleep Sounds and start over."
