@@ -11,7 +11,7 @@
       "slots": [
         {
           "name": "soundName",
-          "type": "soundNames"
+          "type": "soundName"
         },
         {
           "name": "playTime",
@@ -21,7 +21,14 @@
     },
 
     {
-      "intent": "PlayRandomSoundIntent"
+      "intent": "PlayRandomSoundIntent",
+      "slots": [
+
+        {
+          "name": "playTime",
+          "type": "AMAZON.DURATION"
+        }
+      ]
     },
     {
       "intent": "AMAZON.HelpIntent"
