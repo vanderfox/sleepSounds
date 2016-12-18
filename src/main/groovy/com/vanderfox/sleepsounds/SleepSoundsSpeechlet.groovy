@@ -93,7 +93,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
         log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId())
 
-
         session.setAttribute("something", "a session value")
 
         initializeComponents(session)
@@ -130,7 +129,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
             case "AMAZON.ResumeIntent":
                 resumeEpisode(request,session, context)
                 break
-
             case "AMAZON.HelpIntent":
             case "HelpIntent":
                 getHelpResponse()
@@ -165,7 +163,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
         String speechText = "Welcome to Sleep Sounds Say play sound name or play random sound"
 
         askResponse(speechText, speechText)
-
     }
 
 
@@ -223,8 +220,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
         SpeechletResponse.newAskResponse(fancySpeech, reprompt, card);
     }
 
-
-
     /**
      * Creates a {@code SpeechletResponse} for the help intent.
      *
@@ -232,22 +227,18 @@ public class SleepSoundsSpeechlet implements Speechlet {
      */
     private SpeechletResponse getHelpResponse() {
         String speechText = "Say Exit Game or Quit Game to stop the game.  Please follow the prompts I give you, and be sure to speak clearly.";
-
         askResponse(speechText, speechText)
     }
 
     private SpeechletResponse didNotUnderstand() {
         String speechText = "I'm sorry.  I didn't understand what you said.  Say help me for help.";
-
         askResponse(speechText, speechText)
     }
 
     private SpeechletResponse endGame() {
         String speechText = "OK.  I will stop the game now.  Please try again soon.";
-
         tellResponse(speechText, speechText)
     }
-
 
     /**
      * Initializes the instance components if needed.
@@ -278,8 +269,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
 
         session.setAttribute("soundName",soundNameSlot.value)
 
-
-
         AmazonDynamoDBClient amazonDynamoDBClient
         amazonDynamoDBClient = new AmazonDynamoDBClient()
         DynamoDB dynamoDB = new DynamoDB(amazonDynamoDBClient)
@@ -294,6 +283,10 @@ public class SleepSoundsSpeechlet implements Speechlet {
             audioStream.setToken((request.getRequestId()+audioStream.url).hashCode() as String)
             AudioItem audioItem = new AudioItem(audioStream)
 
+            int playedCount = item.getInt("playedCount")
+            playedCount++
+            item.withInt("playedCount", playedCount)
+            table.putItem(item)
 
             AudioDirectivePlay audioPlayerPlay = new AudioDirectivePlay(audioItem)
             PlainTextOutputSpeech speech = new PlainTextOutputSpeech()
@@ -333,10 +326,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
         //LocalTime localTime = LocalTime.parse(playTimeSlot.value)
         //log.debug("playTime${playTimeSlot.value} localTime=${localTime}")
 
-
-
-
-
         AmazonDynamoDBClient amazonDynamoDBClient
         amazonDynamoDBClient = new AmazonDynamoDBClient()
         DynamoDB dynamoDB = new DynamoDB(amazonDynamoDBClient)
@@ -364,6 +353,10 @@ public class SleepSoundsSpeechlet implements Speechlet {
                 log.debug("playing url:${audioStream.url}")
                 AudioItem audioItem = new AudioItem(audioStream)
 
+            int playedCount = item.getInt("playedCount")
+            playedCount++
+            item.withInt("playedCount", playedCount)
+            table.putItem(item)
 
 
                 AudioDirectivePlay audioPlayerPlay = new AudioDirectivePlay(audioItem)
@@ -371,7 +364,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
                 playItems.add(audioPlayerPlay)
             }
             // write these to the dyanmo table to pause/resume will work (only way I've found)
-
 
             Table stateTable = dynamoDB.getTable("sleepsounds_playback_state")
             Item tokenItem = new Item().withPrimaryKey("token",audioStream.getToken())
@@ -382,7 +374,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
                     .withNumber("createdDate",System.currentTimeMillis())
 
             stateTable.putItem(tokenItem)
-
 
             PlainTextOutputSpeech speech = new PlainTextOutputSpeech()
             speech.setText(speechText)
@@ -408,15 +399,9 @@ public class SleepSoundsSpeechlet implements Speechlet {
 
     @CompileStatic(TypeCheckingMode.SKIP) // do some meta stuff
     public SpeechletResponse resumeEpisode(IntentRequest request, Session session, Context context) {
-
-
-
         log.debug("context:${context}")
         log.debug("context.audioPlayer.playerActivity:${context?.audioPlayer?.playerActivity}")
         log.debug("context.audioPlayer.token:${context?.audioPlayer?.token}")
-
-
-
 
         AmazonDynamoDBClient amazonDynamoDBClient
         amazonDynamoDBClient = new AmazonDynamoDBClient()
@@ -434,11 +419,9 @@ public class SleepSoundsSpeechlet implements Speechlet {
             audioStream.offsetInMilliseconds = item.getNumber("offsetInMillis")
             AudioItem audioItem = new AudioItem(audioStream)
 
-
             AudioDirectivePlay audioPlayerPlay = new AudioDirectivePlay(audioItem)
             PlainTextOutputSpeech speech = new PlainTextOutputSpeech()
             speech.setText(speechText)
-            // Create the Simple card content.
 
             SimpleCard card = new SimpleCard()
             card.setTitle(title)
@@ -454,9 +437,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
             card.setContent(speechText) //TODO auto retrieve show notes here
             SpeechletResponse.newTellResponse(speech, card)
         }
-
-
-
     }
 
     private SpeechletResponse stopOrCancelPlayback() {
@@ -482,15 +462,9 @@ public class SleepSoundsSpeechlet implements Speechlet {
     }
 
     private SpeechletResponse pausePlayback(Session session, IntentRequest request, Context context) {
-
-
-
         log.debug("context:${context}")
         log.debug("context.audioPlayer.playerActivity:${context?.audioPlayer?.playerActivity}")
         log.debug("context.audioPlayer.token:${context?.audioPlayer?.token}")
-
-
-
 
         AmazonDynamoDBClient amazonDynamoDBClient
         amazonDynamoDBClient = new AmazonDynamoDBClient()
@@ -530,8 +504,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
         // Create reprompt
         Reprompt reprompt = new Reprompt()
         reprompt.setOutputSpeech(speech)
-
-
 
         log.debug("Pausing intent")
 
