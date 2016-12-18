@@ -105,7 +105,6 @@ public class SleepSoundsSpeechlet implements Speechlet {
             throws SpeechletException {
         log.info("onLaunch requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId());
-        userMetrics(session.getUser().userId)
         getWelcomeResponse(session);
     }
 
@@ -118,6 +117,7 @@ public class SleepSoundsSpeechlet implements Speechlet {
         Intent intent = request.getIntent();
         String intentName = (intent != null) ? intent.getName() : null;
         log.debug("incoming intent:${intentName}")
+        userMetrics(session.getUser().userId)
 
         switch (intentName) {
             case "PlayRandomSoundIntent":
@@ -168,14 +168,14 @@ public class SleepSoundsSpeechlet implements Speechlet {
     private void userMetrics(String userId) {
         DynamoDB dynamoDB = new DynamoDB(new AmazonDynamoDBClient());
         Table table = dynamoDB.getTable("sleepsounds_user_metrics");
-        Item item = table.getItem("id", userId);
+        Item item = table.getItem("userId", userId);
         int timesPlayed = 0;
         if (item != null) {
             timesPlayed = item.getInt("timesUsed")
         }
         timesPlayed++
         Item newItem = new Item()
-        newItem.withString("id", userId)
+        newItem.withString("userId", userId)
         newItem.withInt("timesUsed", timesPlayed)
         table.putItem(newItem)
     }
