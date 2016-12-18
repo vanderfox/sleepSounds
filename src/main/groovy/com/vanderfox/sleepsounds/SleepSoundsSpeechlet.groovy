@@ -350,28 +350,35 @@ public class SleepSoundsSpeechlet implements Speechlet {
         Page soundItems = result.firstPage()
 
         int tableRowCount = soundItems.size()
+        int playTimes = 3
         log.debug("firstPage.size=${tableRowCount}")
         Item item = soundItems.lowLevelResult.items.get(RandomUtils.nextInt(new Random(),tableRowCount))
         if (item) {
             String speechText = "Starting playback of ${item.getString("soundName_nice")}"
-            Stream audioStream = new Stream()
-            audioStream.offsetInMilliseconds = 0
-            audioStream.url = item.getString("url")
-            audioStream.setToken((request.getRequestId()+audioStream.url).hashCode() as String)
-            log.debug("playing url:${audioStream.url}")
-            AudioItem audioItem = new AudioItem(audioStream)
+            List playItems = new ArrayList<AudioDirectivePlay>(playTimes)
+            playTimes.each {
+                Stream audioStream = new Stream()
+                audioStream.offsetInMilliseconds = 0
+                audioStream.url = item.getString("url")
+                audioStream.setToken((request.getRequestId() + audioStream.url).hashCode() as String)
+                log.debug("playing url:${audioStream.url}")
+                AudioItem audioItem = new AudioItem(audioStream)
 
 
-            AudioDirectivePlay audioPlayerPlay = new AudioDirectivePlay(audioItem)
 
+                AudioDirectivePlay audioPlayerPlay = new AudioDirectivePlay(audioItem)
+
+                playItems.add(audioPlayerPlay)
+            }
             // write these to the dyanmo table to pause/resume will work (only way I've found)
 
 
             Table stateTable = dynamoDB.getTable("sleepsounds_playback_state")
             Item tokenItem = new Item().withPrimaryKey("token",audioStream.getToken())
-                    .withString("streamUrl",audioStream.url)
+                    .withString("streamUrl",playItems.get(0).audioItem.stream.url)
                     .withString("soundsName",item.getString("soundName"))
                     .withNumber("offsetInMillis",0)
+                    .withNumber("duration",0)
                     .withNumber("createdDate",System.currentTimeMillis())
 
             stateTable.putItem(tokenItem)
@@ -384,7 +391,7 @@ public class SleepSoundsSpeechlet implements Speechlet {
             SimpleCard card = new SimpleCard()
             card.setTitle(title)
             card.setContent(speechText) //TODO auto retrieve show notes here
-            SpeechletResponse.newTellResponse(speech, card, [audioPlayerPlay] as List<AudioDirective>)
+            SpeechletResponse.newTellResponse(speech, card, playItems)
         } else {
             String speechText = "I'm sorry I am unable to find a sound to play. Please say Alexa open Sleep Sounds and start over."
             PlainTextOutputSpeech speech = new PlainTextOutputSpeech()
