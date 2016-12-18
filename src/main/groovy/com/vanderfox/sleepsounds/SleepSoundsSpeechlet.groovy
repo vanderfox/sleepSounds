@@ -105,7 +105,7 @@ public class SleepSoundsSpeechlet implements Speechlet {
             throws SpeechletException {
         log.info("onLaunch requestId={}, sessionId={}", request.getRequestId(),
                 session.getSessionId());
-
+        userMetrics(session.getUser().userId)
         getWelcomeResponse(session);
     }
 
@@ -165,6 +165,20 @@ public class SleepSoundsSpeechlet implements Speechlet {
         askResponse(speechText, speechText)
     }
 
+    private void userMetrics(String userId) {
+        DynamoDB dynamoDB = new DynamoDB(new AmazonDynamoDBClient());
+        Table table = dynamoDB.getTable("sleepsounds_user_metrics");
+        Item item = table.getItem("id", userId);
+        int timesPlayed = 0;
+        if (item != null) {
+            timesPlayed = item.getInt("timesUsed")
+        }
+        timesPlayed++
+        Item newItem = new Item()
+        newItem.withString("id", userId)
+        newItem.withInt("timesUsed", timesPlayed)
+        table.putItem(newItem)
+    }
 
     private SpeechletResponse askResponse(String cardText, String speechText) {
         // Create the Simple card content.
